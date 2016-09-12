@@ -1,0 +1,14 @@
+{
+  "name": "af-lambda-oracle-sql-injector",
+  "version": "1.0.0",
+  "description": "Sample to exec a SQL line onto a Oracle instance",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Cyril Lakech",
+  "dependencies": {
+    "cfn-response": "^1.0.1",
+    "oracledb-for-lambda": "^1.9.3-5"
+  }
+}

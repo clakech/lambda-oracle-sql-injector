@@ -1,0 +1,26 @@
+[
+  {
+    "ParameterKey": "LambdaS3BucketName",
+    "ParameterValue": "lambdas"
+  },
+  {
+    "ParameterKey": "OracleUserName",
+    "ParameterValue": "test"
+  },
+  {
+    "ParameterKey": "OraclePassword",
+    "ParameterValue": "you shall paas"
+  },
+  {
+    "ParameterKey": "OracleConnectionString",
+    "ParameterValue": "test-oracle.g6d7gf6d5.eu-west-1.rds.amazonaws.com:1521/ORCL"
+  },
+  {
+    "ParameterKey": "OracleSQLS3Key",
+    "ParameterValue": "Sample.sql"
+  },
+  {
+    "ParameterKey": "OracleSQLBucketName",
+    "ParameterValue": "sql-injector"
+  }
+]

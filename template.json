@@ -1,0 +1,116 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "oracle sql injector",
+  "Parameters": {
+    "LambdaS3BucketName": {
+      "Description": "The name of the S3 bucket that contains the source code of your Lambda function.",
+      "Type": "String"
+    },
+    "LambdaS3Key": {
+      "Description": "The location and name of your source code .zip file.",
+      "Type": "String",
+      "Default": "oracle-sql-injector.zip"
+    },
+    "OracleUserName": {
+      "Type": "String"
+    },
+    "OraclePassword": {
+      "Type": "String",
+      "NoEcho": "true"
+    },
+    "OracleConnectionString": {
+      "Type": "String",
+      "Default": "test-oracle.g6d7gf6d5.eu-west-1.rds.amazonaws.com:1521/ORCL"
+    },
+    "OracleSQLS3Key": {
+      "Type": "String"
+    },
+    "OracleSQLBucketName": {
+      "Description": "The name of the S3 bucket that contains the SQL file to inject.",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "LambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": ["sts:AssumeRole"]
+          }]
+        },
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "logs",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [{
+              "Effect": "Allow",
+              "Action": [
+                 "logs:*"
+              ],
+              "Resource": "arn:aws:logs:*:*:*"
+            }]
+          }
+        }, {
+          "PolicyName": "test-s3-document",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [{
+              "Effect": "Allow",
+              "Action": ["s3:GetObject"],
+              "Resource": [{"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "OracleSQLBucketName"}, "/*"]]}]
+            }]
+          }
+        }]
+      }
+    },
+    "Lambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {"Ref": "LambdaS3BucketName"},
+          "S3Key": {"Ref": "LambdaS3Key"}
+        },
+        "Description": "Oracle SQL injector",
+        "Handler": "index.handler",
+        "MemorySize": 128,
+        "Role": {"Fn::GetAtt": ["LambdaRole", "Arn"]},
+        "Runtime": "nodejs4.3",
+        "Timeout": 30
+      }
+    },
+    "OracleSQLInjectorInfo": {
+      "Type": "Custom::OracleSQLInjectorInfo",
+      "Properties": {
+        "ServiceToken": { "Fn::GetAtt" : ["Lambda", "Arn"] },
+        "OracleUserName": {
+          "Ref": "OracleUserName"
+        },
+        "OraclePassword": {
+          "Ref": "OraclePassword"
+        },
+        "OracleConnectionString": {
+          "Ref": "OracleConnectionString"
+        },
+        "OracleSQLBucketName": {
+          "Ref": "OracleSQLBucketName"
+        },
+        "OracleSQLS3Key": {
+          "Ref": "OracleSQLS3Key"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "Result": {
+      "Description": "Result SQL",
+      "Value" : {"Fn::GetAtt": ["OracleSQLInjectorInfo", "result"]}
+    }
+  }
+}
